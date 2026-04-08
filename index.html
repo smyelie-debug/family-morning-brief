@@ -265,7 +265,7 @@ const SECTIONS_DEF = {
   ]
 };
 
-const BIAS_PROMPT = `You are a rigorously non-partisan, factual morning news briefing assistant. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories from the last 24-48 hours.`;
+const BIAS_PROMPT = `You are a rigorously non-partisan, factual morning news briefing assistant. Focus ONLY on news from the past 7 days — prioritize the most recent stories available. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories, most recent first.`;
 
 // ── AIRTABLE HELPERS ──
 const AT_URL = `https://family-brief-proxy.smyelie.workers.dev/airtable/v0/${AT_BASE_ID}`;
@@ -335,26 +335,26 @@ function skelHtml(n){
 }
 
 // ── NEWS FETCHING ──
-function storyId(section, idx) { return `${today}-${section}-${idx}`; }
+function storyId(section, headline) { const slug = (headline||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40); return `${today}-${section}-${slug}`; }
 
 function renderStories(id, stories) {
   const el = document.getElementById(id);
   if (!Array.isArray(stories)||!stories.length){el.innerHTML='<p class="err-txt">No stories returned. Try refreshing.</p>';return;}
   el.innerHTML = stories.map((s,i)=>{
-    const sid = storyId(id, i);
+    const sid = storyId(id, s.headline||s.title||String(i));
     const cnt = commentCounts[sid]||0;
     return `<div class="story" id="story-${sid}">
       <p class="story-hed">${s.headline||s.title||''}</p>
       <p class="story-body">${s.summary||s.body||''}</p>
       <div class="story-footer">
-        <span class="story-src">${s.source||''}</span>
+        ${s.url ? `<a class="story-src" href="${s.url}" target="_blank" rel="noopener">${s.source||'Source'} ↗</a>` : `<span class="story-src">${s.source||''}</span>`}
         <button class="comment-btn" onclick="openComments('${sid}','${(s.headline||'').replace(/'/g,"\\'")}')">
           💬 <span class="cnt" id="cnt-${sid}">${cnt>0?cnt:''}</span>
         </button>
       </div>
     </div>`;
   }).join('');
-  loadCommentCounts(stories.map((_,i)=>storyId(id,i)));
+  loadCommentCounts(stories.map((s,i)=>storyId(id,s.headline||s.title||String(i))));
 }
 
 async function loadCommentCounts(ids) {
@@ -375,13 +375,25 @@ async function loadTab(name) {
   const secs = SECTIONS_DEF[name];
   pending += secs.length;
   secs.forEach(([id])=>{ document.getElementById(id).innerHTML=skelHtml(3); });
+
+  // Check localStorage cache (keyed by tab + today's date)
+  const cacheKey = `mb_cache_${name}_${today}`;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const result = JSON.parse(cached);
+      secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus('Loading…',false); });
+      return;
+    } catch(e) { localStorage.removeItem(cacheKey); }
+  }
+
   try {
     const keys = secs.map(([id])=>id);
-    const prompt = `Return ONLY a valid JSON object (no markdown, no explanation) where each key is one of: ${keys.join(', ')}. Each key maps to an array of exactly 3 news stories from the past 48 hours. Format: {"${keys[0]}":[{"headline":"...","summary":"2-3 sentences","source":"Publication"}],...}. Cover: ${secs.map(([id,topic])=>id+': '+topic).join('; ')}.`;
+    const prompt = `Return ONLY a valid JSON object (no markdown, no explanation) where each key is one of: ${keys.join(', ')}. Use web search to find real, current news stories from the past 7 days. Each key maps to an array of exactly 3 stories, most recent first. Format: {"${keys[0]}":[{"headline":"...","summary":"2-3 sentences","source":"Publication Name","url":"https://..."}],...}. Include a real article URL for each story. Cover: ${secs.map(([id,topic])=>id+': '+topic).join('; ')}.`;
     const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
     const data = await resp.json();
@@ -392,6 +404,7 @@ async function loadTab(name) {
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('No stories found');
     const result = JSON.parse(jsonMatch[0]);
+    localStorage.setItem(cacheKey, JSON.stringify(result));
     secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus(`Loading…`,false); });
   } catch(e) {
     secs.forEach(([id])=>{ document.getElementById(id).innerHTML=`<p class="err-txt">Could not load: ${e.message}</p>`; done++; });
