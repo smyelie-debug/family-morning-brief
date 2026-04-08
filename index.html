@@ -265,7 +265,7 @@ const SECTIONS_DEF = {
   ]
 };
 
-const BIAS_PROMPT = `You are a news briefing API. Respond ONLY with the requested JSON — no preamble, no explanation, no text before or after the JSON. You are a rigorously non-partisan, factual morning news briefing assistant. Focus ONLY on news from the past 7 days — prioritize the most recent stories available. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories, most recent first.`;
+const BIAS_PROMPT = `Respond ONLY with the requested JSON object — no preamble, no explanation, nothing else. You are a non-partisan, factual news assistant. Use recent news (past 7 days). Be balanced and fact-based. Prefer AP, Reuters, BBC, NPR sources.`;
 
 // ── AIRTABLE HELPERS ──
 const AT_URL = `https://family-brief-proxy.smyelie.workers.dev/airtable/v0/${AT_BASE_ID}`;
@@ -369,12 +369,17 @@ async function loadCommentCounts(ids) {
   } catch(e) { /* silent */ }
 }
 
+let lastApiCall = 0;
 async function loadTab(name) {
   if(loaded[name]) return;
   loaded[name]=true;
   const secs = SECTIONS_DEF[name];
   pending += secs.length;
   secs.forEach(([id])=>{ document.getElementById(id).innerHTML=skelHtml(3); });
+
+  // Rate limit cooldown: wait until 35s since last API call
+  const gap = Date.now() - lastApiCall;
+  if (gap < 35000 && lastApiCall > 0) await new Promise(r=>setTimeout(r, 35000 - gap));
 
   // Check localStorage cache (keyed by tab + today's date)
   const cacheKey = `mb_cache_${name}_${today}`;
@@ -389,11 +394,12 @@ async function loadTab(name) {
 
   try {
     const keys = secs.map(([id])=>id);
-    const prompt = `Return ONLY a valid JSON object (no markdown, no explanation) where each key is one of: ${keys.join(', ')}. Use web search to find real, current news stories from the past 7 days. Each key maps to an array of exactly 3 stories, most recent first. Format: {"${keys[0]}":[{"headline":"...","summary":"2-3 sentences","source":"Publication Name","url":"https://..."}],...}. Include a real article URL for each story. Cover: ${secs.map(([id,topic])=>id+': '+topic).join('; ')}.`;
+    const prompt = `JSON object only. Keys: ${keys.join(', ')}. Each key = array of 3 recent news stories (past 7 days). Per story: {"headline":"...","summary":"1-2 sentences","source":"Name","url":"https://..."}. Topics: ${secs.map(([id,topic])=>id+':'+topic).join(', ')}.`;
+    lastApiCall = Date.now();
     const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
     const data = await resp.json();
