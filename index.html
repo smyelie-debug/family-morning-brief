@@ -384,7 +384,7 @@ async function loadTab(name) {
 
   // Rate limit cooldown: wait until 35s since last API call
   const gap = Date.now() - lastApiCall;
-  if (gap < 35000 && lastApiCall > 0) await new Promise(r=>setTimeout(r, 35000 - gap));
+  if (gap < 65000 && lastApiCall > 0) await new Promise(r=>setTimeout(r, 65000 - gap));
 
   // Check localStorage cache (keyed by tab + today's date)
   const cacheKey = `mb_cache_${name}_${today}`;
@@ -497,7 +497,7 @@ async function loadComments() {
     commentCounts[currentStoryId]=recs.length;
     const cnt=document.getElementById(`cnt-${currentStoryId}`);
     if(cnt)cnt.textContent=recs.length>0?recs.length:'';
-  } catch(e){el.innerHTML='<p class="no-msgs">Could not load comments.</p>';}
+  } catch(e){el.innerHTML='<p class="no-msgs">Comment error: '+e.message+'</p>';}
 }
 
 async function sendComment(){
@@ -554,7 +554,7 @@ async function loadChat(){
       badge.classList.remove('hidden');
     }
     lastChatCount=newCount;
-  }catch(e){el.innerHTML='<p class="no-msgs">Could not load chat.</p>';}
+  }catch(e){el.innerHTML='<p class="no-msgs">Chat error: '+e.message+'</p>';}
 }
 
 async function sendChat(){
