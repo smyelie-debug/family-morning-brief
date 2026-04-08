@@ -444,8 +444,12 @@ function switchTab(name,btn){
 }
 
 function refreshAll(){
+  // Clear localStorage cache for today so fresh stories are fetched
+  ['news','sports','biz'].forEach(tab=>{
+    localStorage.removeItem(`mb_cache_${tab}_${today}`);
+  });
   Object.keys(loaded).forEach(k=>loaded[k]=false);
-  pending=0;done=0;
+  pending=0;done=0;lastApiCall=0;
   ['sec-us','sec-world','sec-ai','sec-tech','sec-health','sec-nhl','sec-globe','sec-biz'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
   setStatus('Refreshing…',false);
   const lbl=document.querySelector('.tab-btn.active').textContent;
