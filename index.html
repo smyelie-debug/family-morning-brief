@@ -401,7 +401,7 @@ function loadTab(name) {
   const secs = SECTIONS_DEF[name];
   pending+=secs.length;
   secs.forEach(([id])=>{document.getElementById(id).innerHTML=skelHtml(3);});
-  secs.forEach(([id,topic,hint])=>fetchSection(id,topic,hint));
+  secs.forEach(([id,topic,hint], i)=>setTimeout(()=>fetchSection(id,topic,hint), i*2000));
 }
 
 function switchTab(name,btn){
