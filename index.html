@@ -3,571 +3,571 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Family Brief">
-<title>Family Morning Brief</title>
+<title>Morning Briefing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script>
-// ╔══════════════════════════════════════════════╗
-// ║   ADMIN SETUP — Edit these 4 values only     ║
-// ╚══════════════════════════════════════════════╝
-const INVITE_CODE    = "Finn2026";          // Family invite code (e.g. "Smyelie2025")
-const AT_BASE_ID     = "app9kbu6mSGReIf6Q";
-// ╔══════════════════════════════════════════════╗
-// ║   Do not edit anything below this line       ║
-// ╚══════════════════════════════════════════════╝
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #f7f4ef;
+    --ink: #1a1a18;
+    --mid: #6b6860;
+    --rule: #dedad3;
+    --accent: #2c5f8a;
+    --red: #c0392b;
+    --card-bg: #ffffff;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+    padding: 18px 24px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .masthead-title {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+  .masthead-dateline {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background: #fff;
+    border-bottom: 1.5px solid var(--rule);
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 13px 22px;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  .tab-btn:hover:not(.active) { color: var(--ink); }
+
+  /* CONTENT */
+  .tab-panel { display: none; padding: 28px 20px 60px; max-width: 1100px; margin: 0 auto; }
+  .tab-panel.active { display: block; }
+
+  /* GRID */
+  .news-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) { .news-grid { grid-template-columns: 1fr; } }
+
+  /* SECTION CARD */
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 22px 22px 16px;
+  }
+  .section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 0;
+  }
+
+  /* STORY */
+  .story {
+    padding: 16px 0 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .story:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .story-headline {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.28;
+    margin-bottom: 7px;
+    color: var(--ink);
+  }
+  .story-summary {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 10px;
+  }
+  .story-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .story-source {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .story-discuss-btn {
+    background: #f0f0ee;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+  .story-discuss-btn:hover { background: #e0ddd8; }
+
+  /* LOADING / ERROR */
+  .loading-state {
+    padding: 32px 0;
+    text-align: center;
+    color: var(--mid);
+    font-size: 13px;
+  }
+  .spinner {
+    width: 22px; height: 22px;
+    border: 2px solid var(--rule);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-state {
+    padding: 18px 0 0;
+    font-size: 12.5px;
+    color: var(--red);
+  }
+  .retry-btn {
+    margin-top: 8px;
+    background: none;
+    border: 1px solid var(--red);
+    border-radius: 3px;
+    color: var(--red);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+
+  /* REFRESH */
+  .refresh-bar {
+    text-align: center;
+    padding: 10px;
+    font-size: 11.5px;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+  .refresh-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 11.5px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* CHAT OVERLAY */
+  .chat-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .chat-overlay.open { display: flex; }
+  .chat-panel {
+    background: #fff;
+    width: 100%;
+    max-width: 640px;
+    border-radius: 10px 10px 0 0;
+    padding: 20px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-topic {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+    min-height: 80px;
+  }
+  .chat-msg {
+    font-size: 13.5px;
+    line-height: 1.55;
+    padding: 10px 13px;
+    border-radius: 4px;
+    max-width: 90%;
+  }
+  .chat-msg.user { background: var(--ink); color: #fff; align-self: flex-end; }
+  .chat-msg.ai { background: #f3f1ee; color: var(--ink); align-self: flex-start; }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input {
+    flex: 1;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 9px 12px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    outline: none;
+  }
+  .chat-input:focus { border-color: var(--ink); }
+  .chat-send {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 9px 16px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .chat-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--mid);
+    cursor: pointer;
+    position: absolute;
+    top: 16px;
+    right: 18px;
+  }
+  .chat-panel { position: relative; }
+</style>
 </head>
 <body>
 
-<!-- ═══════════ LOGIN SCREEN ═══════════ -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-masthead">
-      <h1>Family<br>Morning Brief</h1>
-      <p class="login-sub">Your family's shared daily news</p>
+<div class="masthead">
+  <div class="masthead-title">Morning Briefing</div>
+  <div class="masthead-dateline" id="dateline"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="news">News</button>
+  <button class="tab-btn" data-tab="sports">Sports</button>
+  <button class="tab-btn" data-tab="business">Business & Leadership</button>
+</div>
+
+<!-- TAB 1: NEWS -->
+<div class="tab-panel active" id="tab-news">
+  <div class="news-grid">
+    <div class="section-card" id="card-us">
+      <div class="section-label">US News</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
     </div>
-    <div class="login-form">
-      <label>Your Name</label>
-      <input type="text" id="login-name" placeholder="e.g. Dad, Brendan, Kaitlin…" autocomplete="off" maxlength="30">
-      <label>Family Code</label>
-      <input type="password" id="login-code" placeholder="Enter invite code" autocomplete="off">
-      <button id="login-btn" onclick="doLogin()">Enter →</button>
-      <p class="login-err" id="login-err"></p>
+    <div class="section-card" id="card-world">
+      <div class="section-label">World News</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
     </div>
+    <div class="section-card" id="card-ai">
+      <div class="section-label">AI News</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
+    </div>
+    <div class="section-card" id="card-tech">
+      <div class="section-label">Tech News</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
+    </div>
+    <div class="section-card" id="card-health" style="grid-column:1/-1">
+      <div class="section-label">Health & Safety</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
+    </div>
+  </div>
+  <div class="refresh-bar">
+    <button class="refresh-btn" onclick="loadAll()">↻ Refresh all</button>
   </div>
 </div>
 
-<!-- ═══════════ MAIN APP ═══════════ -->
-<div id="app" class="hidden">
-
-  <!-- HEADER -->
-  <header id="masthead">
-    <div class="mast-inner">
-      <div class="mast-left">
-        <h1>Family Morning Brief</h1>
-        <div class="tagline">Balanced · Factual · Current</div>
-      </div>
-      <div class="mast-right">
-        <div id="dateline"></div>
-        <div class="ctrl-row">
-          <span class="status-pill"><span class="sdot loading" id="sdot"></span><span id="stext">Loading…</span></span>
-          <span class="member-badge" id="member-badge"></span>
-          <button class="icon-btn" onclick="refreshAll()">↺</button>
-          <button class="icon-btn" onclick="doLogout()">⏻</button>
-        </div>
-      </div>
+<!-- TAB 2: SPORTS -->
+<div class="tab-panel" id="tab-sports">
+  <div class="news-grid">
+    <div class="section-card" id="card-nhl">
+      <div class="section-label">NHL</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
     </div>
-    <nav class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('news',this)">World &amp; US</button>
-      <button class="tab-btn" onclick="switchTab('sports',this)">Sports</button>
-      <button class="tab-btn" onclick="switchTab('biz',this)">Leadership &amp; Business</button>
-    </nav>
-  </header>
-
-  <!-- MAIN CONTENT -->
-  <main id="main-content">
-    <div class="tab-panel active" id="tab-news">
-      <div class="grid-2">
-        <div class="section"><div class="sec-label">US News</div><div id="sec-us" class="stories"></div></div>
-        <div class="section"><div class="sec-label">World News</div><div id="sec-world" class="stories"></div></div>
-      </div>
-      <div class="grid-2">
-        <div class="section"><div class="sec-label">Artificial Intelligence</div><div id="sec-ai" class="stories"></div></div>
-        <div class="section"><div class="sec-label">Technology</div><div id="sec-tech" class="stories"></div></div>
-      </div>
-      <div class="section full"><div class="sec-label">Health &amp; Safety</div><div id="sec-health" class="stories multi"></div></div>
-    </div>
-    <div class="tab-panel" id="tab-sports">
-      <div class="grid-2">
-        <div class="section"><div class="sec-label">NHL Hockey</div><div id="sec-nhl" class="stories"></div></div>
-        <div class="section"><div class="sec-label">Global Sports</div><div id="sec-globe" class="stories"></div></div>
-      </div>
-    </div>
-    <div class="tab-panel" id="tab-biz">
-      <div class="section full"><div class="sec-label">Leadership &amp; Business Trends</div><div id="sec-biz" class="stories multi"></div></div>
-    </div>
-  </main>
-
-  <!-- FAMILY CHAT BUTTON -->
-  <button id="chat-fab" onclick="toggleChat()">
-    <span id="chat-fab-icon">💬</span>
-    <span id="chat-unread" class="unread-badge hidden">0</span>
-  </button>
-
-  <!-- FAMILY CHAT DRAWER -->
-  <div id="chat-drawer" class="hidden">
-    <div class="drawer-header">
-      <span>Family Chat</span>
-      <button onclick="toggleChat()" class="drawer-close">✕</button>
-    </div>
-    <div id="chat-messages"></div>
-    <div class="chat-input-row">
-      <input type="text" id="chat-input" placeholder="Say something…" maxlength="500" onkeydown="if(event.key==='Enter')sendChat()">
-      <button onclick="sendChat()">Send</button>
+    <div class="section-card" id="card-sports">
+      <div class="section-label">Global Sports</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
     </div>
   </div>
-
-  <!-- COMMENT DRAWER -->
-  <div id="comment-drawer" class="hidden">
-    <div class="drawer-header">
-      <span id="comment-drawer-title">Comments</span>
-      <button onclick="closeComments()" class="drawer-close">✕</button>
-    </div>
-    <div class="comment-story-hed" id="comment-story-hed"></div>
-    <div id="comment-messages"></div>
-    <div class="chat-input-row">
-      <input type="text" id="comment-input" placeholder="Add your reaction…" maxlength="500" onkeydown="if(event.key==='Enter')sendComment()">
-      <button onclick="sendComment()">Post</button>
-    </div>
+  <div class="refresh-bar">
+    <button class="refresh-btn" onclick="loadSports()">↻ Refresh</button>
   </div>
-
-  <!-- OVERLAY -->
-  <div id="overlay" class="hidden" onclick="closeAllDrawers()"></div>
 </div>
 
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f5f2ed;--surf:#fff;--bdr:#d8d2c8;--bdr-l:#ece8e1;
-  --txt:#1a1814;--mut:#6b6560;--fnt:#9e9890;
-  --accent:#2a5298;--accent-l:#e8eef8;
-  --serif:'Playfair Display',Georgia,serif;
-  --sans:'Source Sans 3',system-ui,-apple-system,sans-serif;
-  --pad:clamp(1rem,4vw,1.75rem);
-  --drawer-w:380px;
-}
-html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%}
-.hidden{display:none!important}
+<!-- TAB 3: BUSINESS -->
+<div class="tab-panel" id="tab-business">
+  <div class="news-grid">
+    <div class="section-card" id="card-biz">
+      <div class="section-label">Business Trends</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
+    </div>
+    <div class="section-card" id="card-leadership">
+      <div class="section-label">Leadership & Management</div>
+      <div class="section-body"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
+    </div>
+  </div>
+  <div class="refresh-bar">
+    <button class="refresh-btn" onclick="loadBusiness()">↻ Refresh</button>
+  </div>
+</div>
 
-/* ── LOGIN ── */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:var(--bg)}
-.login-card{background:var(--surf);border:1px solid var(--bdr);border-radius:16px;padding:2.5rem;max-width:420px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
-.login-masthead{margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--bdr-l)}
-.login-masthead h1{font-family:var(--serif);font-size:32px;font-weight:600;letter-spacing:-0.02em;line-height:1.15;color:var(--txt)}
-.login-sub{font-size:13px;color:var(--mut);margin-top:6px;letter-spacing:0.04em}
-.login-form label{display:block;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
-.login-form input{width:100%;font-family:var(--sans);font-size:14px;color:var(--txt);background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:11px 13px;margin-bottom:1rem;outline:none;transition:border-color 0.15s}
-.login-form input:focus{border-color:var(--accent)}
-#login-btn{width:100%;font-family:var(--sans);font-size:14px;font-weight:600;color:#fff;background:var(--txt);border:none;border-radius:8px;padding:13px;cursor:pointer;transition:opacity 0.15s;margin-top:4px}
-#login-btn:hover{opacity:0.85}
-.login-err{font-size:12px;color:#dc2626;margin-top:8px;min-height:16px}
-
-/* ── MASTHEAD ── */
-#masthead{background:var(--surf);border-bottom:2px solid var(--txt);padding:0 var(--pad);position:sticky;top:0;z-index:200}
-.mast-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;padding:1rem 0 0.75rem;gap:0.75rem;flex-wrap:wrap}
-.mast-left h1{font-family:var(--serif);font-size:clamp(20px,4.5vw,36px);font-weight:600;letter-spacing:-0.02em;line-height:1.1}
-.mast-left .tagline{font-size:11px;color:var(--mut);letter-spacing:0.1em;text-transform:uppercase;margin-top:3px}
-.mast-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-#dateline{font-size:11px;color:var(--mut);letter-spacing:0.05em;text-transform:uppercase;text-align:right}
-.ctrl-row{display:flex;align-items:center;gap:7px}
-.status-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);background:var(--bg);border:1px solid var(--bdr);border-radius:20px;padding:3px 9px;white-space:nowrap}
-.sdot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
-.sdot.loading{background:#f59e0b;animation:blink 1s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-.member-badge{font-size:11px;font-weight:600;color:#fff;background:var(--accent);border-radius:20px;padding:3px 10px;white-space:nowrap}
-.icon-btn{font-size:13px;color:var(--mut);background:none;border:1px solid var(--bdr);border-radius:20px;padding:4px 10px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent}
-.icon-btn:hover{color:var(--txt);border-color:var(--txt)}
-.tab-bar{max-width:1100px;margin:0 auto;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.tab-bar::-webkit-scrollbar{display:none}
-.tab-btn{font-family:var(--sans);font-size:clamp(12px,3vw,13px);font-weight:500;color:var(--mut);background:none;border:none;border-bottom:2px solid transparent;padding:9px 0;margin-right:20px;cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;min-height:44px}
-.tab-btn.active{color:var(--txt);border-bottom-color:var(--txt)}
-.tab-btn:hover:not(.active){color:var(--txt)}
-
-/* ── MAIN ── */
-#main-content{max-width:1100px;margin:0 auto;padding:1.5rem var(--pad) 5rem}
-.tab-panel{display:none}.tab-panel.active{display:block}
-.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;margin-bottom:1.25rem}
-@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
-.section{background:var(--surf);border:1px solid var(--bdr-l);border-radius:8px;padding:1rem 1.25rem 0.5rem}
-.section.full{margin-bottom:1.25rem}
-.sec-label{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--fnt);padding-bottom:9px;border-bottom:1px solid var(--bdr-l)}
-.stories.multi{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 1.5rem}
-
-/* ── STORIES ── */
-.story{padding:0.85rem 0;border-bottom:1px solid var(--bdr-l)}
-.story:last-child{border-bottom:none;padding-bottom:0.25rem}
-.story-hed{font-family:var(--serif);font-size:clamp(14px,3.5vw,15px);font-weight:500;line-height:1.4;margin-bottom:4px}
-.story-body{font-size:clamp(12px,3vw,13px);color:var(--mut);line-height:1.65;margin-bottom:6px}
-.story-footer{display:flex;align-items:center;justify-content:space-between}
-.story-src{font-size:11px;color:var(--fnt)}
-.comment-btn{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--accent);background:var(--accent-l);border:none;border-radius:12px;padding:3px 9px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
-.comment-btn:hover{opacity:0.8}
-.comment-btn .cnt{font-size:11px}
-
-/* ── SKELETON ── */
-.skel{background:linear-gradient(90deg,var(--bdr-l) 25%,var(--bg) 50%,var(--bdr-l) 75%);background-size:200% 100%;border-radius:3px;margin-bottom:7px;animation:shimmer 1.8s infinite}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.err-txt{font-size:13px;color:#dc2626;padding:0.9rem 0;line-height:1.5}
-
-/* ── DRAWERS ── */
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:300;backdrop-filter:blur(2px)}
-#chat-drawer,#comment-drawer{position:fixed;top:0;right:0;height:100%;width:var(--drawer-w);max-width:95vw;background:var(--surf);z-index:400;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.1);transform:translateX(0)}
-.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--bdr-l);font-weight:600;font-size:14px;flex-shrink:0}
-.drawer-close{background:none;border:none;font-size:16px;cursor:pointer;color:var(--mut);padding:4px;border-radius:4px}
-.drawer-close:hover{color:var(--txt)}
-.comment-story-hed{font-family:var(--serif);font-size:13px;color:var(--mut);padding:0.75rem 1.25rem;border-bottom:1px solid var(--bdr-l);line-height:1.4;flex-shrink:0}
-#chat-messages,#comment-messages{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem}
-.msg{display:flex;flex-direction:column;gap:2px}
-.msg-author{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.03em}
-.msg-text{font-size:13px;color:var(--txt);line-height:1.55;background:var(--bg);border-radius:0 8px 8px 8px;padding:8px 10px;max-width:100%}
-.msg.mine .msg-author{text-align:right;color:var(--mut)}
-.msg.mine .msg-text{background:var(--accent-l);border-radius:8px 0 8px 8px;margin-left:auto}
-.msg-time{font-size:10px;color:var(--fnt)}
-.msg.mine .msg-time{text-align:right}
-.chat-input-row{display:flex;gap:8px;padding:0.75rem 1.25rem;border-top:1px solid var(--bdr-l);flex-shrink:0}
-.chat-input-row input{flex:1;font-family:var(--sans);font-size:13px;background:var(--bg);border:1px solid var(--bdr);border-radius:20px;padding:9px 14px;outline:none;color:var(--txt)}
-.chat-input-row input:focus{border-color:var(--accent)}
-.chat-input-row button{font-family:var(--sans);font-size:13px;font-weight:600;color:#fff;background:var(--accent);border:none;border-radius:20px;padding:9px 16px;cursor:pointer;white-space:nowrap}
-.chat-input-row button:hover{opacity:0.85}
-.no-msgs{font-size:13px;color:var(--fnt);text-align:center;padding:2rem 0}
-
-/* ── CHAT FAB ── */
-#chat-fab{position:fixed;bottom:1.5rem;right:1.5rem;width:54px;height:54px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(42,82,152,0.4);z-index:250;transition:transform 0.15s;-webkit-tap-highlight-color:transparent}
-#chat-fab:hover{transform:scale(1.08)}
-.unread-badge{position:absolute;top:0;right:0;width:18px;height:18px;background:#ef4444;border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
-
-@media(max-width:480px){
-  #masthead{padding:0 1rem}
-  #main-content{padding:1rem 1rem 5rem}
-  .section{padding:0.85rem 1rem 0.4rem}
-  #chat-fab{bottom:1rem;right:1rem}
-}
-</style>
+<!-- CHAT OVERLAY -->
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-panel">
+    <button class="chat-close" onclick="closeChat()">✕</button>
+    <div class="chat-topic" id="chatTopic"></div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Ask about this story…" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+</div>
 
 <script>
-// ── STATE ──
-let currentUser = '';
-let currentStoryId = '';
-let chatPollTimer = null;
-let commentPollTimer = null;
-const loaded = {news:false, sports:false, biz:false};
-let pending=0, done=0;
-const commentCounts = {};
-const today = new Date().toISOString().slice(0,10);
+// ── DATE ──────────────────────────────────────────────────────────
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const now = new Date();
+document.getElementById('dateline').textContent =
+  `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
 
-const SECTIONS_DEF = {
-  news:[
-    ['sec-us',    'US domestic news today',                'Cover politics, economy, major social issues. Balanced conservative and liberal perspectives.'],
-    ['sec-world', 'International world news today',        'Major global events, geopolitics, conflicts, diplomacy. Factual and balanced.'],
-    ['sec-ai',    'Artificial intelligence news today',    'AI research, product launches, regulation, industry developments.'],
-    ['sec-tech',  'Technology news today excluding AI',    'Cybersecurity, big tech, semiconductors, space, consumer tech. No AI.'],
-    ['sec-health','Health and safety news today',          'Medical research, public health, FDA approvals, safety recalls, wellness science.']
-  ],
-  sports:[
-    ['sec-nhl',  'NHL hockey news today',         'Scores, standings, trades, injuries, playoff picture.'],
-    ['sec-globe','Global sports news today',       'Soccer, tennis, golf, Formula 1, Olympics, basketball.']
-  ],
-  biz:[
-    ['sec-biz', 'leadership, business strategy and management', 'Actionable insights, future of work, innovation, strategy. Prefer HBR, WSJ, McKinsey, MIT Sloan, Forbes when available.']
-  ]
-};
-
-const BIAS_PROMPT = `Respond ONLY with the requested JSON object — no text before or after it. You are a strictly non-partisan news assistant. BALANCE RULES: (1) For political/economic stories you MUST include perspectives from BOTH conservative and liberal viewpoints. (2) Source from a balanced mix — centrist: AP, Reuters, BBC; right-leaning: WSJ, Fox News, NY Post; left-leaning: NPR, NYT, WaPo. (3) No more than 2 stories from outlets of the same political leaning per section. (4) Ask yourself: would both a Trump voter and a Biden voter find this coverage fair? If not, rebalance. Use news from the past 7 days only.`;
-
-// ── AIRTABLE HELPERS ──
-const AT_URL = `https://family-brief-proxy.smyelie.workers.dev/airtable/v0/${AT_BASE_ID}`;
-const atHeaders = () => ({'Content-Type':'application/json'});
-
-async function atGet(table, formula='') {
-  const url = `${AT_URL}/${encodeURIComponent(table)}${formula ? '?filterByFormula='+encodeURIComponent(formula) : ''}`;
-  const r = await fetch(url, {headers: atHeaders()});
-  const d = await r.json();
-  return d.records || [];
-}
-
-async function atPost(table, fields) {
-  const r = await fetch(`${AT_URL}/${encodeURIComponent(table)}`, {
-    method: 'POST', headers: atHeaders(),
-    body: JSON.stringify({records:[{fields}]})
+// ── TABS ──────────────────────────────────────────────────────────
+let sportsLoaded = false, bizLoaded = false;
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const id = 'tab-' + btn.dataset.tab;
+    document.getElementById(id).classList.add('active');
+    if (btn.dataset.tab === 'sports' && !sportsLoaded) { loadSports(); sportsLoaded = true; }
+    if (btn.dataset.tab === 'business' && !bizLoaded) { loadBusiness(); bizLoaded = true; }
   });
-  return r.json();
+});
+
+// ── API CALL ──────────────────────────────────────────────────────
+async function fetchStories(systemPrompt, topic) {
+  const today = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 6000,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      system: systemPrompt,
+      messages: [{ role: 'user', content: `Today is ${today}. Find the top 3 most important ${topic} stories from the last 24 hours. Use web search to find current news. Return ONLY valid JSON, no markdown, no backticks:\n{"stories":[{"headline":"...","summary":"...","source":"..."}]}` }]
+    })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || 'API error');
+  if (data.stop_reason === 'max_tokens') throw new Error('Response too long — try refreshing');
+
+  // Extract text from content blocks
+  const textBlock = data.content.find(b => b.type === 'text');
+  const raw = textBlock ? textBlock.text : '';
+
+  // Parse JSON — strip any accidental fences
+  const clean = raw.replace(/```json|```/gi, '').trim();
+  let result = null;
+  try { result = JSON.parse(clean); } catch(_) {
+    // Try extracting first {...} block
+    const m = clean.match(/\{[\s\S]*\}/);
+    if (m) try { result = JSON.parse(m[0]); } catch(_) {}
+  }
+  if (!result || !result.stories) throw new Error('No stories found — try refreshing');
+  return result.stories;
 }
 
-// ── INIT / LOGIN ──
-function init() {
-  const saved = localStorage.getItem('mb_user');
-  if (saved) { currentUser = saved; showApp(); }
-  else document.getElementById('login-screen').style.display='flex';
-}
-
-function doLogin() {
-  const name = document.getElementById('login-name').value.trim();
-  const code = document.getElementById('login-code').value.trim();
-  const err  = document.getElementById('login-err');
-  if (!name) { err.textContent='Please enter your name'; return; }
-  if (code !== INVITE_CODE) { err.textContent='Incorrect family code — try again'; return; }
-  localStorage.setItem('mb_user', name);
-  currentUser = name;
-  document.getElementById('login-screen').style.display='none';
-  showApp();
-}
-
-document.getElementById('login-code').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-document.getElementById('login-name').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-code').focus(); });
-
-function doLogout() {
-  localStorage.removeItem('mb_user');
-  location.reload();
-}
-
-function showApp() {
-  document.getElementById('app').classList.remove('hidden');
-  const now = new Date();
-  document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('member-badge').textContent = currentUser;
-  setStatus('Loading 5 sections…',false);
-  loadTab('news');
-  startChatPoll();
-}
-
-// ── STATUS ──
-function setStatus(t,ok){document.getElementById('stext').textContent=t;document.getElementById('sdot').className='sdot'+(ok?'':' loading')}
-
-// ── SKELETON ──
-function skelHtml(n){
-  let h='';
-  for(let i=0;i<n;i++){const a=55+Math.floor(Math.random()*35),b=65+Math.floor(Math.random()*28),c=45+Math.floor(Math.random()*38);
-    h+=`<div class="story"><div class="skel" style="height:15px;width:${a}%;margin-bottom:9px;"></div><div class="skel" style="height:12px;width:${b}%;margin-bottom:5px;"></div><div class="skel" style="height:12px;width:${c}%;"></div></div>`;}
-  return h;
-}
-
-// ── NEWS FETCHING ──
-function storyId(section, headline) { const slug = (headline||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40); return `${today}-${section}-${slug}`; }
-
-function renderStories(id, stories) {
-  const el = document.getElementById(id);
-  if (!Array.isArray(stories)||!stories.length){el.innerHTML='<p class="err-txt">No stories returned. Try refreshing.</p>';return;}
-  el.innerHTML = stories.map((s,i)=>{
-    const sid = storyId(id, s.headline||s.title||String(i));
-    const cnt = commentCounts[sid]||0;
-    return `<div class="story" id="story-${sid}">
-      <p class="story-hed">${s.headline||s.title||''}</p>
-      <p class="story-body">${s.summary||s.body||''}</p>
+// ── RENDER ────────────────────────────────────────────────────────
+function renderStories(cardId, stories) {
+  const body = document.querySelector(`#${cardId} .section-body`);
+  body.innerHTML = stories.map(s => `
+    <div class="story">
+      <div class="story-headline">${s.headline}</div>
+      <div class="story-summary">${s.summary}</div>
       <div class="story-footer">
-        ${s.url ? `<a class="story-src" href="${s.url}" target="_blank" rel="noopener">${s.source||'Source'} ↗</a>` : `<span class="story-src">${s.source||''}</span>`}
-        <button class="comment-btn" onclick="openComments('${sid}','${(s.headline||'').replace(/'/g,"\\'")}')">
-          💬 <span class="cnt" id="cnt-${sid}">${cnt>0?cnt:''}</span>
-        </button>
+        <span class="story-source">${s.source} ↗</span>
+        <button class="story-discuss-btn" onclick="openChat(${JSON.stringify(s.headline).replace(/'/g,"&#39;")}, ${JSON.stringify(s.summary).replace(/'/g,"&#39;")})">💬</button>
       </div>
-    </div>`;
-  }).join('');
-  loadCommentCounts(stories.map((s,i)=>storyId(id,s.headline||s.title||String(i))));
+    </div>
+  `).join('');
 }
 
-async function loadCommentCounts(ids) {
-  if (AT_BASE_ID==='CHANGE_ME') return;
-  try {
-    for (const id of ids) {
-      const recs = await atGet('Comments', `{StoryId}='${id}'`);
-      commentCounts[id] = recs.length;
-      const el = document.getElementById(`cnt-${id}`);
-      if (el) el.textContent = recs.length > 0 ? recs.length : '';
-    }
-  } catch(e) { /* silent */ }
+function renderError(cardId, msg, reloadFn) {
+  const body = document.querySelector(`#${cardId} .section-body`);
+  body.innerHTML = `<div class="error-state">${msg}<br><button class="retry-btn" onclick="(${reloadFn})()">Try again</button></div>`;
 }
 
-let lastApiCall = 0;
-async function loadTab(name) {
-  if(loaded[name]) return;
-  loaded[name]=true;
-  const secs = SECTIONS_DEF[name];
-  pending += secs.length;
-  secs.forEach(([id])=>{ document.getElementById(id).innerHTML=skelHtml(3); });
+function setLoading(cardId) {
+  document.querySelector(`#${cardId} .section-body`).innerHTML =
+    '<div class="loading-state"><div class="spinner"></div>Loading…</div>';
+}
 
-  // Rate limit cooldown: wait until 35s since last API call
-  const gap = Date.now() - lastApiCall;
-  if (gap < 35000 && lastApiCall > 0) await new Promise(r=>setTimeout(r, 35000 - gap));
+// ── SOURCE POLICY (baked into every prompt) ───────────────────────
+// Balanced: Reuters, AP, Axios, The Hill, Wall Street Journal,
+//           BBC, Fox News, Washington Examiner, PBS NewsHour, Bloomberg
+const BALANCE_INSTRUCTION = `You are a balanced, nonpartisan news editor.
+Draw from a politically diverse mix of sources to ensure fair, centrist coverage.
+Prioritize: Reuters, Associated Press (AP), Axios, The Hill, Wall Street Journal,
+BBC News, Fox News, Washington Examiner, PBS NewsHour, Bloomberg, RealClearPolitics.
+Do NOT rely primarily on CNN, MSNBC, Al Jazeera, or exclusively left-leaning outlets.
+Each story must note its source outlet. Present facts without partisan framing.
+Return ONLY raw JSON — no markdown, no commentary.`;
 
-  // Check localStorage cache (keyed by tab + today's date)
-  const cacheKey = `mb_cache_${name}_${today}`;
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) {
-    try {
-      const result = JSON.parse(cached);
-      secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus('Loading…',false); });
-      return;
-    } catch(e) { localStorage.removeItem(cacheKey); }
-  }
-
+// ── LOADERS ───────────────────────────────────────────────────────
+async function loadSection(cardId, topic) {
+  setLoading(cardId);
   try {
-    const keys = secs.map(([id])=>id);
-    const prompt = `JSON object only. Keys: ${keys.join(', ')}. Each key = array of 3 recent news stories (past 7 days). Per story: {"headline":"...","summary":"1-2 sentences","source":"Name","url":"https://..."}. Topics: ${secs.map(([id,topic])=>id+':'+topic).join(', ')}.`;
-    lastApiCall = Date.now();
-    const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:6000,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
-    });
-    if (!resp.ok) throw new Error(`API error ${resp.status}`);
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error.message||'API error');
-    if (data.stop_reason === 'max_tokens') throw new Error('Response too long — try refreshing');
-    // Combine all text blocks (web search may produce multiple)
-    const allText = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
-    if (!allText) throw new Error('No content');
-    const raw = allText.replace(/```json|```/g,'').trim();
-    // Extract JSON using balanced brace counting (handles extra text around JSON)
-    const result = (function extractJSON(text) {
-      const start = text.indexOf('{');
-      if (start === -1) return null;
-      let depth = 0, inStr = false, esc = false;
-      for (let i = start; i < text.length; i++) {
-        const c = text[i];
-        if (esc) { esc = false; continue; }
-        if (c === '\\' && inStr) { esc = true; continue; }
-        if (c === '"') { inStr = !inStr; continue; }
-        if (inStr) continue;
-        if (c === '{') depth++;
-        if (c === '}' && --depth === 0) {
-          try { return JSON.parse(text.slice(start, i+1)); } catch(e) { return null; }
-        }
-      }
-      return null;
-    })(raw);
-    if (!result) throw new Error('No stories found — try refreshing');
-    localStorage.setItem(cacheKey, JSON.stringify(result));
-    secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus(`Loading…`,false); });
+    const stories = await fetchStories(BALANCE_INSTRUCTION, topic);
+    renderStories(cardId, stories);
   } catch(e) {
-    secs.forEach(([id])=>{ document.getElementById(id).innerHTML=`<p class="err-txt">Could not load: ${e.message}</p>`; done++; });
-    if(done>=pending) setStatus('Up to date',true);
+    renderError(cardId, e.message, `()=>loadSection('${cardId}','${topic}')`);
   }
 }
 
-function switchTab(name,btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  loadTab(name);
+function loadAll() {
+  loadSection('card-us', 'US domestic news and politics — draw from Reuters, AP, Axios, The Hill, Wall Street Journal, Fox News, Washington Examiner, PBS for balance');
+  loadSection('card-world', 'international / world news — draw from Reuters, AP, BBC, Wall Street Journal, Bloomberg for balance');
+  loadSection('card-ai', 'artificial intelligence news — from MIT Technology Review, Wired, Ars Technica, Bloomberg, Reuters');
+  loadSection('card-tech', 'technology news (non-AI) — from Ars Technica, The Verge, Bloomberg Technology, Wall Street Journal');
+  loadSection('card-health', 'health and safety news — from Reuters Health, AP, WebMD, NIH, Scientific American, Bloomberg Health');
 }
 
-function refreshAll(){
-  // Clear localStorage cache for today so fresh stories are fetched
-  ['news','sports','biz'].forEach(tab=>{
-    localStorage.removeItem(`mb_cache_${tab}_${today}`);
-  });
-  Object.keys(loaded).forEach(k=>loaded[k]=false);
-  pending=0;done=0;lastApiCall=0;
-  ['sec-us','sec-world','sec-ai','sec-tech','sec-health','sec-nhl','sec-globe','sec-biz'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
-  setStatus('Refreshing…',false);
-  const lbl=document.querySelector('.tab-btn.active').textContent;
-  if(lbl.includes('Sport'))loadTab('sports');
-  else if(lbl.includes('Lead'))loadTab('biz');
-  else loadTab('news');
+function loadSports() {
+  loadSection('card-nhl', 'NHL hockey news, scores, standings, and player updates — from ESPN, The Athletic, AP Sports, NHL.com');
+  loadSection('card-sports', 'global leading sports news (soccer, NBA, NFL, golf, tennis, F1) — from ESPN, Reuters Sports, AP Sports, BBC Sport');
 }
 
-// ── COMMENTS ──
-function openComments(storyId, headline) {
-  currentStoryId = storyId;
-  document.getElementById('comment-story-hed').textContent = headline;
-  document.getElementById('comment-drawer-title').textContent = 'Family Reactions';
-  document.getElementById('comment-drawer').classList.remove('hidden');
-  document.getElementById('overlay').classList.remove('hidden');
-  loadComments();
-  if(commentPollTimer) clearInterval(commentPollTimer);
-  commentPollTimer = setInterval(loadComments, 8000);
+function loadBusiness() {
+  loadSection('card-biz', 'business trends, economics, and market news — from Wall Street Journal, Bloomberg, Financial Times, Reuters Business, Forbes');
+  loadSection('card-leadership', 'leadership, management, and organizational insights — from Harvard Business Review, MIT Sloan Management Review, McKinsey Quarterly, Forbes');
 }
 
-function closeComments(){
-  document.getElementById('comment-drawer').classList.add('hidden');
-  document.getElementById('overlay').classList.add('hidden');
-  if(commentPollTimer){clearInterval(commentPollTimer);commentPollTimer=null;}
+// Initial load
+loadAll();
+
+// ── CHAT ──────────────────────────────────────────────────────────
+let chatHistory = [];
+let chatContext = '';
+
+function openChat(headline, summary) {
+  chatContext = `News story: "${headline}"\n\nSummary: ${summary}`;
+  chatHistory = [{ role: 'assistant', content: `Happy to discuss this story about "${headline}". What would you like to know?` }];
+  document.getElementById('chatTopic').textContent = headline;
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = `<div class="chat-msg ai">Happy to discuss this story. What would you like to know?</div>`;
+  document.getElementById('chatOverlay').classList.add('open');
+  document.getElementById('chatInput').focus();
 }
 
-async function loadComments() {
-  const el = document.getElementById('comment-messages');
-  if(AT_BASE_ID==='CHANGE_ME'){el.innerHTML='<p class="no-msgs">Airtable not configured yet.<br>See setup guide.</p>';return;}
+function closeChat() {
+  document.getElementById('chatOverlay').classList.remove('open');
+  chatHistory = [];
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML += `<div class="chat-msg user">${text}</div>`;
+  chatHistory.push({ role: 'user', content: text });
+  msgs.scrollTop = msgs.scrollHeight;
+
+  const thinkingEl = document.createElement('div');
+  thinkingEl.className = 'chat-msg ai';
+  thinkingEl.textContent = '…';
+  msgs.appendChild(thinkingEl);
+
   try {
-    const recs = await atGet('Comments',`{StoryId}='${currentStoryId}'`);
-    if(!recs.length){el.innerHTML='<p class="no-msgs">No reactions yet — be the first!</p>';return;}
-    el.innerHTML = recs.sort((a,b)=>new Date(a.fields.Timestamp)-new Date(b.fields.Timestamp)).map(r=>{
-      const mine = r.fields.Author===currentUser;
-      const t = new Date(r.fields.Timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      return `<div class="msg${mine?' mine':''}"><div class="msg-author">${r.fields.Author}</div><div class="msg-text">${r.fields.Comment}</div><div class="msg-time">${t}</div></div>`;
-    }).join('');
-    el.scrollTop=el.scrollHeight;
-    commentCounts[currentStoryId]=recs.length;
-    const cnt=document.getElementById(`cnt-${currentStoryId}`);
-    if(cnt)cnt.textContent=recs.length>0?recs.length:'';
-  } catch(e){el.innerHTML='<p class="no-msgs">Could not load comments.</p>';}
-}
-
-async function sendComment(){
-  const inp=document.getElementById('comment-input');
-  const txt=inp.value.trim();
-  if(!txt)return;
-  inp.value='';
-  try {
-    await atPost('Comments',{StoryId:currentStoryId,Author:currentUser,Comment:txt,Timestamp:new Date().toISOString()});
-    loadComments();
-  } catch(e){alert('Could not post comment. Check your Airtable setup.');}
-}
-
-// ── FAMILY CHAT ──
-function toggleChat(){
-  const drawer=document.getElementById('chat-drawer');
-  const overlay=document.getElementById('overlay');
-  if(drawer.classList.contains('hidden')){
-    drawer.classList.remove('hidden');overlay.classList.remove('hidden');
-    document.getElementById('chat-unread').classList.add('hidden');
-    document.getElementById('chat-unread').textContent='0';
-    loadChat();
-  } else {
-    drawer.classList.add('hidden');overlay.classList.add('hidden');
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are a knowledgeable, nonpartisan news analyst. The user is asking about this story:\n\n${chatContext}\n\nProvide balanced, factual, concise answers (2–4 sentences). No partisan framing.`,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Sorry, something went wrong.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    thinkingEl.textContent = reply;
+  } catch(e) {
+    thinkingEl.textContent = 'Error: ' + e.message;
   }
+  msgs.scrollTop = msgs.scrollHeight;
 }
-
-function closeAllDrawers(){
-  document.getElementById('chat-drawer').classList.add('hidden');
-  document.getElementById('comment-drawer').classList.add('hidden');
-  document.getElementById('overlay').classList.add('hidden');
-  if(commentPollTimer){clearInterval(commentPollTimer);commentPollTimer=null;}
-}
-
-let lastChatCount=0;
-async function loadChat(){
-  const el=document.getElementById('chat-messages');
-  if(AT_BASE_ID==='CHANGE_ME'){el.innerHTML='<p class="no-msgs">Airtable not configured yet.<br>See setup guide.</p>';return;}
-  try{
-    const recs=await atGet('FamilyChat');
-    if(!recs.length){el.innerHTML='<p class="no-msgs">Family chat is quiet…<br>Say something!</p>';return;}
-    const sorted=recs.sort((a,b)=>new Date(a.fields.Timestamp)-new Date(b.fields.Timestamp));
-    el.innerHTML=sorted.map(r=>{
-      const mine=r.fields.Author===currentUser;
-      const t=new Date(r.fields.Timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      return `<div class="msg${mine?' mine':''}"><div class="msg-author">${r.fields.Author}</div><div class="msg-text">${r.fields.Message}</div><div class="msg-time">${t}</div></div>`;
-    }).join('');
-    el.scrollTop=el.scrollHeight;
-    const newCount=recs.length;
-    const drawer=document.getElementById('chat-drawer');
-    if(newCount>lastChatCount&&lastChatCount>0&&drawer.classList.contains('hidden')){
-      const badge=document.getElementById('chat-unread');
-      badge.textContent=newCount-lastChatCount;
-      badge.classList.remove('hidden');
-    }
-    lastChatCount=newCount;
-  }catch(e){el.innerHTML='<p class="no-msgs">Could not load chat.</p>';}
-}
-
-async function sendChat(){
-  const inp=document.getElementById('chat-input');
-  const txt=inp.value.trim();
-  if(!txt)return;
-  inp.value='';
-  try{
-    await atPost('FamilyChat',{Author:currentUser,Message:txt,Timestamp:new Date().toISOString()});
-    loadChat();
-  }catch(e){alert('Could not send message. Check your Airtable setup.');}
-}
-
-function startChatPoll(){
-  if(AT_BASE_ID!=='CHANGE_ME'){chatPollTimer=setInterval(loadChat,10000);}
-}
-
-init();
 </script>
 </body>
 </html>
