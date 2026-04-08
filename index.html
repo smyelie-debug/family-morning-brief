@@ -369,12 +369,19 @@ async function loadCommentCounts(ids) {
   } catch(e) { /* silent */ }
 }
 
-async function fetchSection(id, topic, hint) {
+async function loadTab(name) {
+  if(loaded[name]) return;
+  loaded[name]=true;
+  const secs = SECTIONS_DEF[name];
+  pending += secs.length;
+  secs.forEach(([id])=>{ document.getElementById(id).innerHTML=skelHtml(3); });
   try {
+    const keys = secs.map(([id])=>id);
+    const prompt = `Return ONLY a valid JSON object (no markdown, no explanation) where each key is one of: ${keys.join(', ')}. Each key maps to an array of exactly 3 news stories from the past 48 hours. Format: {"${keys[0]}":[{"headline":"...","summary":"2-3 sentences","source":"Publication"}],...}. Cover: ${secs.map(([id,topic])=>id+': '+topic).join('; ')}.`;
     const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
     const data = await resp.json();
@@ -382,26 +389,14 @@ async function fetchSection(id, topic, hint) {
     const block = (data.content||[]).find(b=>b.type==='text');
     if (!block) throw new Error('No content');
     const raw = block.text.replace(/```json|```/g,'').trim();
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('No stories found');
-    const stories = JSON.parse(jsonMatch[0]);
-    renderStories(id, stories);
+    const result = JSON.parse(jsonMatch[0]);
+    secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus(`Loading…`,false); });
   } catch(e) {
-    document.getElementById(id).innerHTML=`<p class="err-txt">Could not load: ${e.message}</p>`;
-  } finally {
-    done++;
+    secs.forEach(([id])=>{ document.getElementById(id).innerHTML=`<p class="err-txt">Could not load: ${e.message}</p>`; done++; });
     if(done>=pending) setStatus('Up to date',true);
-    else setStatus(`Loading ${pending-done} more…`,false);
   }
-}
-
-function loadTab(name) {
-  if(loaded[name]) return;
-  loaded[name]=true;
-  const secs = SECTIONS_DEF[name];
-  pending+=secs.length;
-  secs.forEach(([id])=>{document.getElementById(id).innerHTML=skelHtml(3);});
-  (async()=>{ for(const [id,topic,hint] of secs){ await fetchSection(id,topic,hint); await new Promise(r=>setTimeout(r,3000)); } })();
 }
 
 function switchTab(name,btn){
