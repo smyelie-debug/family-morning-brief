@@ -381,7 +381,10 @@ async function fetchSection(id, topic, hint) {
     if (data.error) throw new Error(data.error.message||'API error');
     const block = (data.content||[]).find(b=>b.type==='text');
     if (!block) throw new Error('No content');
-    const stories = JSON.parse(block.text.replace(/```json|```/g,'').trim());
+    const raw = block.text.replace(/```json|```/g,'').trim();
+    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No stories found');
+    const stories = JSON.parse(jsonMatch[0]);
     renderStories(id, stories);
   } catch(e) {
     document.getElementById(id).innerHTML=`<p class="err-txt">Could not load: ${e.message}</p>`;
