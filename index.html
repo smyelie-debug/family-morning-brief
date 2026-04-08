@@ -13,7 +13,6 @@
 // ║   ADMIN SETUP — Edit these 4 values only     ║
 // ╚══════════════════════════════════════════════╝
 const INVITE_CODE    = "Finn2026";          // Family invite code (e.g. "Smyelie2025")
-const ANTHROPIC_KEY  = "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";
 const AT_BASE_ID     = "app9kbu6mSGReIf6Q";
 // ╔══════════════════════════════════════════════╗
 // ║   Do not edit anything below this line       ║
@@ -375,7 +374,7 @@ async function fetchSection(id, topic, hint) {
     const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
     const data = await resp.json();
