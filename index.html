@@ -14,7 +14,6 @@
 // ╚══════════════════════════════════════════════╝
 const INVITE_CODE    = "Finn2026";          // Family invite code (e.g. "Smyelie2025")
 const ANTHROPIC_KEY  = "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";
-const AT_TOKEN       = "patZJO6hDHgRc7BNh.fc79f1910e85d1805c6d46273cea6c52b5b8b06b0233b13937255318b7c9ee22";
 const AT_BASE_ID     = "app9kbu6mSGReIf6Q";
 // ╔══════════════════════════════════════════════╗
 // ║   Do not edit anything below this line       ║
@@ -270,8 +269,8 @@ const SECTIONS_DEF = {
 const BIAS_PROMPT = `You are a rigorously non-partisan, factual morning news briefing assistant. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories from the last 24-48 hours.`;
 
 // ── AIRTABLE HELPERS ──
-const AT_URL = `https://api.airtable.com/v0/${AT_BASE_ID}`;
-const atHeaders = () => ({'Authorization':`Bearer ${AT_TOKEN}`,'Content-Type':'application/json'});
+const AT_URL = `https://family-brief-proxy.smyelie.workers.dev/airtable/v0/${AT_BASE_ID}`;
+const atHeaders = () => ({'Content-Type':'application/json'});
 
 async function atGet(table, formula='') {
   const url = `${AT_URL}/${encodeURIComponent(table)}${formula ? '?filterByFormula='+encodeURIComponent(formula) : ''}`;
@@ -373,9 +372,9 @@ async function loadCommentCounts(ids) {
 
 async function fetchSection(id, topic, hint) {
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-beta':'web-search-2025-03-05'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
