@@ -353,7 +353,7 @@ function renderStories(id, stories) {
       <p class="story-body">${s.summary||s.body||''}</p>
       <div class="story-footer">
         ${s.url ? `<a class="story-src" href="${s.url}" target="_blank" rel="noopener">${s.source||'Source'} ↗</a>` : `<span class="story-src">${s.source||''}</span>`}
-        <button class="comment-btn" onclick="openComments('${sid}','${(s.headline||'').replace(/'/g,"\\'")}')">
+        <button class="comment-btn" data-sid="${sid}" data-hed="${encodeURIComponent(s.headline||s.title||'')}" onclick="openComments(this.dataset.sid,decodeURIComponent(this.dataset.hed))">
           💬 <span class="cnt" id="cnt-${sid}">${cnt>0?cnt:''}</span>
         </button>
       </div>
