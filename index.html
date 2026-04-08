@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Family Brief">
+<title>Family Morning Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+// ╔══════════════════════════════════════════════╗
+// ║   ADMIN SETUP — Edit these 4 values only     ║
+// ╚══════════════════════════════════════════════╝
+const INVITE_CODE    = "Finn2026";          // Family invite code (e.g. "Smyelie2025")
+const ANTHROPIC_KEY  = "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";
+const AT_TOKEN       = "patZJO6hDHgRc7BNh.fc79f1910e85d1805c6d46273cea6c52b5b8b06b0233b13937255318b7c9ee22";
+const AT_BASE_ID     = "app9kbu6mSGReIf6Q";
+// ╔══════════════════════════════════════════════╗
+// ║   Do not edit anything below this line       ║
+// ╚══════════════════════════════════════════════╝
+</script>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN SCREEN ═══════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-masthead">
+      <h1>Family<br>Morning Brief</h1>
+      <p class="login-sub">Your family's shared daily news</p>
+    </div>
+    <div class="login-form">
+      <label>Your Name</label>
+      <input type="text" id="login-name" placeholder="e.g. Dad, Brendan, Kaitlin…" autocomplete="off" maxlength="30">
+      <label>Family Code</label>
+      <input type="password" id="login-code" placeholder="Enter invite code" autocomplete="off">
+      <button id="login-btn" onclick="doLogin()">Enter →</button>
+      <p class="login-err" id="login-err"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN APP ═══════════ -->
+<div id="app" class="hidden">
+
+  <!-- HEADER -->
+  <header id="masthead">
+    <div class="mast-inner">
+      <div class="mast-left">
+        <h1>Family Morning Brief</h1>
+        <div class="tagline">Balanced · Factual · Current</div>
+      </div>
+      <div class="mast-right">
+        <div id="dateline"></div>
+        <div class="ctrl-row">
+          <span class="status-pill"><span class="sdot loading" id="sdot"></span><span id="stext">Loading…</span></span>
+          <span class="member-badge" id="member-badge"></span>
+          <button class="icon-btn" onclick="refreshAll()">↺</button>
+          <button class="icon-btn" onclick="doLogout()">⏻</button>
+        </div>
+      </div>
+    </div>
+    <nav class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('news',this)">World &amp; US</button>
+      <button class="tab-btn" onclick="switchTab('sports',this)">Sports</button>
+      <button class="tab-btn" onclick="switchTab('biz',this)">Leadership &amp; Business</button>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main id="main-content">
+    <div class="tab-panel active" id="tab-news">
+      <div class="grid-2">
+        <div class="section"><div class="sec-label">US News</div><div id="sec-us" class="stories"></div></div>
+        <div class="section"><div class="sec-label">World News</div><div id="sec-world" class="stories"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="section"><div class="sec-label">Artificial Intelligence</div><div id="sec-ai" class="stories"></div></div>
+        <div class="section"><div class="sec-label">Technology</div><div id="sec-tech" class="stories"></div></div>
+      </div>
+      <div class="section full"><div class="sec-label">Health &amp; Safety</div><div id="sec-health" class="stories multi"></div></div>
+    </div>
+    <div class="tab-panel" id="tab-sports">
+      <div class="grid-2">
+        <div class="section"><div class="sec-label">NHL Hockey</div><div id="sec-nhl" class="stories"></div></div>
+        <div class="section"><div class="sec-label">Global Sports</div><div id="sec-globe" class="stories"></div></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-biz">
+      <div class="section full"><div class="sec-label">Leadership &amp; Business Trends</div><div id="sec-biz" class="stories multi"></div></div>
+    </div>
+  </main>
+
+  <!-- FAMILY CHAT BUTTON -->
+  <button id="chat-fab" onclick="toggleChat()">
+    <span id="chat-fab-icon">💬</span>
+    <span id="chat-unread" class="unread-badge hidden">0</span>
+  </button>
+
+  <!-- FAMILY CHAT DRAWER -->
+  <div id="chat-drawer" class="hidden">
+    <div class="drawer-header">
+      <span>Family Chat</span>
+      <button onclick="toggleChat()" class="drawer-close">✕</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Say something…" maxlength="500" onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()">Send</button>
+    </div>
+  </div>
+
+  <!-- COMMENT DRAWER -->
+  <div id="comment-drawer" class="hidden">
+    <div class="drawer-header">
+      <span id="comment-drawer-title">Comments</span>
+      <button onclick="closeComments()" class="drawer-close">✕</button>
+    </div>
+    <div class="comment-story-hed" id="comment-story-hed"></div>
+    <div id="comment-messages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="comment-input" placeholder="Add your reaction…" maxlength="500" onkeydown="if(event.key==='Enter')sendComment()">
+      <button onclick="sendComment()">Post</button>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div id="overlay" class="hidden" onclick="closeAllDrawers()"></div>
+</div>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f2ed;--surf:#fff;--bdr:#d8d2c8;--bdr-l:#ece8e1;
+  --txt:#1a1814;--mut:#6b6560;--fnt:#9e9890;
+  --accent:#2a5298;--accent-l:#e8eef8;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'Source Sans 3',system-ui,-apple-system,sans-serif;
+  --pad:clamp(1rem,4vw,1.75rem);
+  --drawer-w:380px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%}
+.hidden{display:none!important}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:var(--bg)}
+.login-card{background:var(--surf);border:1px solid var(--bdr);border-radius:16px;padding:2.5rem;max-width:420px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.login-masthead{margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--bdr-l)}
+.login-masthead h1{font-family:var(--serif);font-size:32px;font-weight:600;letter-spacing:-0.02em;line-height:1.15;color:var(--txt)}
+.login-sub{font-size:13px;color:var(--mut);margin-top:6px;letter-spacing:0.04em}
+.login-form label{display:block;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+.login-form input{width:100%;font-family:var(--sans);font-size:14px;color:var(--txt);background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:11px 13px;margin-bottom:1rem;outline:none;transition:border-color 0.15s}
+.login-form input:focus{border-color:var(--accent)}
+#login-btn{width:100%;font-family:var(--sans);font-size:14px;font-weight:600;color:#fff;background:var(--txt);border:none;border-radius:8px;padding:13px;cursor:pointer;transition:opacity 0.15s;margin-top:4px}
+#login-btn:hover{opacity:0.85}
+.login-err{font-size:12px;color:#dc2626;margin-top:8px;min-height:16px}
+
+/* ── MASTHEAD ── */
+#masthead{background:var(--surf);border-bottom:2px solid var(--txt);padding:0 var(--pad);position:sticky;top:0;z-index:200}
+.mast-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;padding:1rem 0 0.75rem;gap:0.75rem;flex-wrap:wrap}
+.mast-left h1{font-family:var(--serif);font-size:clamp(20px,4.5vw,36px);font-weight:600;letter-spacing:-0.02em;line-height:1.1}
+.mast-left .tagline{font-size:11px;color:var(--mut);letter-spacing:0.1em;text-transform:uppercase;margin-top:3px}
+.mast-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+#dateline{font-size:11px;color:var(--mut);letter-spacing:0.05em;text-transform:uppercase;text-align:right}
+.ctrl-row{display:flex;align-items:center;gap:7px}
+.status-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);background:var(--bg);border:1px solid var(--bdr);border-radius:20px;padding:3px 9px;white-space:nowrap}
+.sdot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.sdot.loading{background:#f59e0b;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.member-badge{font-size:11px;font-weight:600;color:#fff;background:var(--accent);border-radius:20px;padding:3px 10px;white-space:nowrap}
+.icon-btn{font-size:13px;color:var(--mut);background:none;border:1px solid var(--bdr);border-radius:20px;padding:4px 10px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent}
+.icon-btn:hover{color:var(--txt);border-color:var(--txt)}
+.tab-bar{max-width:1100px;margin:0 auto;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{font-family:var(--sans);font-size:clamp(12px,3vw,13px);font-weight:500;color:var(--mut);background:none;border:none;border-bottom:2px solid transparent;padding:9px 0;margin-right:20px;cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent;min-height:44px}
+.tab-btn.active{color:var(--txt);border-bottom-color:var(--txt)}
+.tab-btn:hover:not(.active){color:var(--txt)}
+
+/* ── MAIN ── */
+#main-content{max-width:1100px;margin:0 auto;padding:1.5rem var(--pad) 5rem}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;margin-bottom:1.25rem}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+.section{background:var(--surf);border:1px solid var(--bdr-l);border-radius:8px;padding:1rem 1.25rem 0.5rem}
+.section.full{margin-bottom:1.25rem}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--fnt);padding-bottom:9px;border-bottom:1px solid var(--bdr-l)}
+.stories.multi{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 1.5rem}
+
+/* ── STORIES ── */
+.story{padding:0.85rem 0;border-bottom:1px solid var(--bdr-l)}
+.story:last-child{border-bottom:none;padding-bottom:0.25rem}
+.story-hed{font-family:var(--serif);font-size:clamp(14px,3.5vw,15px);font-weight:500;line-height:1.4;margin-bottom:4px}
+.story-body{font-size:clamp(12px,3vw,13px);color:var(--mut);line-height:1.65;margin-bottom:6px}
+.story-footer{display:flex;align-items:center;justify-content:space-between}
+.story-src{font-size:11px;color:var(--fnt)}
+.comment-btn{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--accent);background:var(--accent-l);border:none;border-radius:12px;padding:3px 9px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.comment-btn:hover{opacity:0.8}
+.comment-btn .cnt{font-size:11px}
+
+/* ── SKELETON ── */
+.skel{background:linear-gradient(90deg,var(--bdr-l) 25%,var(--bg) 50%,var(--bdr-l) 75%);background-size:200% 100%;border-radius:3px;margin-bottom:7px;animation:shimmer 1.8s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.err-txt{font-size:13px;color:#dc2626;padding:0.9rem 0;line-height:1.5}
+
+/* ── DRAWERS ── */
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:300;backdrop-filter:blur(2px)}
+#chat-drawer,#comment-drawer{position:fixed;top:0;right:0;height:100%;width:var(--drawer-w);max-width:95vw;background:var(--surf);z-index:400;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.1);transform:translateX(0)}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--bdr-l);font-weight:600;font-size:14px;flex-shrink:0}
+.drawer-close{background:none;border:none;font-size:16px;cursor:pointer;color:var(--mut);padding:4px;border-radius:4px}
+.drawer-close:hover{color:var(--txt)}
+.comment-story-hed{font-family:var(--serif);font-size:13px;color:var(--mut);padding:0.75rem 1.25rem;border-bottom:1px solid var(--bdr-l);line-height:1.4;flex-shrink:0}
+#chat-messages,#comment-messages{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem}
+.msg{display:flex;flex-direction:column;gap:2px}
+.msg-author{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.03em}
+.msg-text{font-size:13px;color:var(--txt);line-height:1.55;background:var(--bg);border-radius:0 8px 8px 8px;padding:8px 10px;max-width:100%}
+.msg.mine .msg-author{text-align:right;color:var(--mut)}
+.msg.mine .msg-text{background:var(--accent-l);border-radius:8px 0 8px 8px;margin-left:auto}
+.msg-time{font-size:10px;color:var(--fnt)}
+.msg.mine .msg-time{text-align:right}
+.chat-input-row{display:flex;gap:8px;padding:0.75rem 1.25rem;border-top:1px solid var(--bdr-l);flex-shrink:0}
+.chat-input-row input{flex:1;font-family:var(--sans);font-size:13px;background:var(--bg);border:1px solid var(--bdr);border-radius:20px;padding:9px 14px;outline:none;color:var(--txt)}
+.chat-input-row input:focus{border-color:var(--accent)}
+.chat-input-row button{font-family:var(--sans);font-size:13px;font-weight:600;color:#fff;background:var(--accent);border:none;border-radius:20px;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.chat-input-row button:hover{opacity:0.85}
+.no-msgs{font-size:13px;color:var(--fnt);text-align:center;padding:2rem 0}
+
+/* ── CHAT FAB ── */
+#chat-fab{position:fixed;bottom:1.5rem;right:1.5rem;width:54px;height:54px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(42,82,152,0.4);z-index:250;transition:transform 0.15s;-webkit-tap-highlight-color:transparent}
+#chat-fab:hover{transform:scale(1.08)}
+.unread-badge{position:absolute;top:0;right:0;width:18px;height:18px;background:#ef4444;border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+
+@media(max-width:480px){
+  #masthead{padding:0 1rem}
+  #main-content{padding:1rem 1rem 5rem}
+  .section{padding:0.85rem 1rem 0.4rem}
+  #chat-fab{bottom:1rem;right:1rem}
+}
+</style>
+
+<script>
+// ── STATE ──
+let currentUser = '';
+let currentStoryId = '';
+let chatPollTimer = null;
+let commentPollTimer = null;
+const loaded = {news:false, sports:false, biz:false};
+let pending=0, done=0;
+const commentCounts = {};
+const today = new Date().toISOString().slice(0,10);
+
+const SECTIONS_DEF = {
+  news:[
+    ['sec-us',    'US domestic news today',                'Cover politics, economy, major social issues. Balanced conservative and liberal perspectives.'],
+    ['sec-world', 'International world news today',        'Major global events, geopolitics, conflicts, diplomacy. Factual and balanced.'],
+    ['sec-ai',    'Artificial intelligence news today',    'AI research, product launches, regulation, industry developments.'],
+    ['sec-tech',  'Technology news today excluding AI',    'Cybersecurity, big tech, semiconductors, space, consumer tech. No AI.'],
+    ['sec-health','Health and safety news today',          'Medical research, public health, FDA approvals, safety recalls, wellness science.']
+  ],
+  sports:[
+    ['sec-nhl',  'NHL hockey news today',         'Scores, standings, trades, injuries, playoff picture.'],
+    ['sec-globe','Global sports news today',       'Soccer, tennis, golf, Formula 1, Olympics, basketball.']
+  ],
+  biz:[
+    ['sec-biz', 'leadership and business strategy from MIT Sloan, Harvard Business Review, McKinsey, Deloitte Insights', 'Actionable insights, future of work, strategy, digital transformation. Use publication as source.']
+  ]
+};
+
+const BIAS_PROMPT = `You are a rigorously non-partisan, factual morning news briefing assistant. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories from the last 24-48 hours.`;
+
+// ── AIRTABLE HELPERS ──
+const AT_URL = `https://api.airtable.com/v0/${AT_BASE_ID}`;
+const atHeaders = () => ({'Authorization':`Bearer ${AT_TOKEN}`,'Content-Type':'application/json'});
+
+async function atGet(table, formula='') {
+  const url = `${AT_URL}/${encodeURIComponent(table)}${formula ? '?filterByFormula='+encodeURIComponent(formula) : ''}`;
+  const r = await fetch(url, {headers: atHeaders()});
+  const d = await r.json();
+  return d.records || [];
+}
+
+async function atPost(table, fields) {
+  const r = await fetch(`${AT_URL}/${encodeURIComponent(table)}`, {
+    method: 'POST', headers: atHeaders(),
+    body: JSON.stringify({records:[{fields}]})
+  });
+  return r.json();
+}
+
+// ── INIT / LOGIN ──
+function init() {
+  const saved = localStorage.getItem('mb_user');
+  if (saved) { currentUser = saved; showApp(); }
+  else document.getElementById('login-screen').style.display='flex';
+}
+
+function doLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const code = document.getElementById('login-code').value.trim();
+  const err  = document.getElementById('login-err');
+  if (!name) { err.textContent='Please enter your name'; return; }
+  if (code !== INVITE_CODE) { err.textContent='Incorrect family code — try again'; return; }
+  localStorage.setItem('mb_user', name);
+  currentUser = name;
+  document.getElementById('login-screen').style.display='none';
+  showApp();
+}
+
+document.getElementById('login-code').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-name').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-code').focus(); });
+
+function doLogout() {
+  localStorage.removeItem('mb_user');
+  location.reload();
+}
+
+function showApp() {
+  document.getElementById('app').classList.remove('hidden');
+  const now = new Date();
+  document.getElementById('dateline').textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('member-badge').textContent = currentUser;
+  setStatus('Loading 5 sections…',false);
+  loadTab('news');
+  startChatPoll();
+}
+
+// ── STATUS ──
+function setStatus(t,ok){document.getElementById('stext').textContent=t;document.getElementById('sdot').className='sdot'+(ok?'':' loading')}
+
+// ── SKELETON ──
+function skelHtml(n){
+  let h='';
+  for(let i=0;i<n;i++){const a=55+Math.floor(Math.random()*35),b=65+Math.floor(Math.random()*28),c=45+Math.floor(Math.random()*38);
+    h+=`<div class="story"><div class="skel" style="height:15px;width:${a}%;margin-bottom:9px;"></div><div class="skel" style="height:12px;width:${b}%;margin-bottom:5px;"></div><div class="skel" style="height:12px;width:${c}%;"></div></div>`;}
+  return h;
+}
+
+// ── NEWS FETCHING ──
+function storyId(section, idx) { return `${today}-${section}-${idx}`; }
+
+function renderStories(id, stories) {
+  const el = document.getElementById(id);
+  if (!Array.isArray(stories)||!stories.length){el.innerHTML='<p class="err-txt">No stories returned. Try refreshing.</p>';return;}
+  el.innerHTML = stories.map((s,i)=>{
+    const sid = storyId(id, i);
+    const cnt = commentCounts[sid]||0;
+    return `<div class="story" id="story-${sid}">
+      <p class="story-hed">${s.headline||s.title||''}</p>
+      <p class="story-body">${s.summary||s.body||''}</p>
+      <div class="story-footer">
+        <span class="story-src">${s.source||''}</span>
+        <button class="comment-btn" onclick="openComments('${sid}','${(s.headline||'').replace(/'/g,"\\'")}')">
+          💬 <span class="cnt" id="cnt-${sid}">${cnt>0?cnt:''}</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  loadCommentCounts(stories.map((_,i)=>storyId(id,i)));
+}
+
+async function loadCommentCounts(ids) {
+  if (AT_BASE_ID==='CHANGE_ME') return;
+  try {
+    for (const id of ids) {
+      const recs = await atGet('Comments', `{StoryId}='${id}'`);
+      commentCounts[id] = recs.length;
+      const el = document.getElementById(`cnt-${id}`);
+      if (el) el.textContent = recs.length > 0 ? recs.length : '';
+    }
+  } catch(e) { /* silent */ }
+}
+
+async function fetchSection(id, topic, hint) {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-beta':'web-search-2025-03-05'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
+    });
+    if (!resp.ok) throw new Error(`API error ${resp.status}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message||'API error');
+    const block = (data.content||[]).find(b=>b.type==='text');
+    if (!block) throw new Error('No content');
+    const stories = JSON.parse(block.text.replace(/```json|```/g,'').trim());
+    renderStories(id, stories);
+  } catch(e) {
+    document.getElementById(id).innerHTML=`<p class="err-txt">Could not load: ${e.message}</p>`;
+  } finally {
+    done++;
+    if(done>=pending) setStatus('Up to date',true);
+    else setStatus(`Loading ${pending-done} more…`,false);
+  }
+}
+
+function loadTab(name) {
+  if(loaded[name]) return;
+  loaded[name]=true;
+  const secs = SECTIONS_DEF[name];
+  pending+=secs.length;
+  secs.forEach(([id])=>{document.getElementById(id).innerHTML=skelHtml(3);});
+  secs.forEach(([id,topic,hint])=>fetchSection(id,topic,hint));
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  loadTab(name);
+}
+
+function refreshAll(){
+  Object.keys(loaded).forEach(k=>loaded[k]=false);
+  pending=0;done=0;
+  ['sec-us','sec-world','sec-ai','sec-tech','sec-health','sec-nhl','sec-globe','sec-biz'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  setStatus('Refreshing…',false);
+  const lbl=document.querySelector('.tab-btn.active').textContent;
+  if(lbl.includes('Sport'))loadTab('sports');
+  else if(lbl.includes('Lead'))loadTab('biz');
+  else loadTab('news');
+}
+
+// ── COMMENTS ──
+function openComments(storyId, headline) {
+  currentStoryId = storyId;
+  document.getElementById('comment-story-hed').textContent = headline;
+  document.getElementById('comment-drawer-title').textContent = 'Family Reactions';
+  document.getElementById('comment-drawer').classList.remove('hidden');
+  document.getElementById('overlay').classList.remove('hidden');
+  loadComments();
+  if(commentPollTimer) clearInterval(commentPollTimer);
+  commentPollTimer = setInterval(loadComments, 8000);
+}
+
+function closeComments(){
+  document.getElementById('comment-drawer').classList.add('hidden');
+  document.getElementById('overlay').classList.add('hidden');
+  if(commentPollTimer){clearInterval(commentPollTimer);commentPollTimer=null;}
+}
+
+async function loadComments() {
+  const el = document.getElementById('comment-messages');
+  if(AT_BASE_ID==='CHANGE_ME'){el.innerHTML='<p class="no-msgs">Airtable not configured yet.<br>See setup guide.</p>';return;}
+  try {
+    const recs = await atGet('Comments',`{StoryId}='${currentStoryId}'`);
+    if(!recs.length){el.innerHTML='<p class="no-msgs">No reactions yet — be the first!</p>';return;}
+    el.innerHTML = recs.sort((a,b)=>new Date(a.fields.Timestamp)-new Date(b.fields.Timestamp)).map(r=>{
+      const mine = r.fields.Author===currentUser;
+      const t = new Date(r.fields.Timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return `<div class="msg${mine?' mine':''}"><div class="msg-author">${r.fields.Author}</div><div class="msg-text">${r.fields.Comment}</div><div class="msg-time">${t}</div></div>`;
+    }).join('');
+    el.scrollTop=el.scrollHeight;
+    commentCounts[currentStoryId]=recs.length;
+    const cnt=document.getElementById(`cnt-${currentStoryId}`);
+    if(cnt)cnt.textContent=recs.length>0?recs.length:'';
+  } catch(e){el.innerHTML='<p class="no-msgs">Could not load comments.</p>';}
+}
+
+async function sendComment(){
+  const inp=document.getElementById('comment-input');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  try {
+    await atPost('Comments',{StoryId:currentStoryId,Author:currentUser,Comment:txt,Timestamp:new Date().toISOString()});
+    loadComments();
+  } catch(e){alert('Could not post comment. Check your Airtable setup.');}
+}
+
+// ── FAMILY CHAT ──
+function toggleChat(){
+  const drawer=document.getElementById('chat-drawer');
+  const overlay=document.getElementById('overlay');
+  if(drawer.classList.contains('hidden')){
+    drawer.classList.remove('hidden');overlay.classList.remove('hidden');
+    document.getElementById('chat-unread').classList.add('hidden');
+    document.getElementById('chat-unread').textContent='0';
+    loadChat();
+  } else {
+    drawer.classList.add('hidden');overlay.classList.add('hidden');
+  }
+}
+
+function closeAllDrawers(){
+  document.getElementById('chat-drawer').classList.add('hidden');
+  document.getElementById('comment-drawer').classList.add('hidden');
+  document.getElementById('overlay').classList.add('hidden');
+  if(commentPollTimer){clearInterval(commentPollTimer);commentPollTimer=null;}
+}
+
+let lastChatCount=0;
+async function loadChat(){
+  const el=document.getElementById('chat-messages');
+  if(AT_BASE_ID==='CHANGE_ME'){el.innerHTML='<p class="no-msgs">Airtable not configured yet.<br>See setup guide.</p>';return;}
+  try{
+    const recs=await atGet('FamilyChat');
+    if(!recs.length){el.innerHTML='<p class="no-msgs">Family chat is quiet…<br>Say something!</p>';return;}
+    const sorted=recs.sort((a,b)=>new Date(a.fields.Timestamp)-new Date(b.fields.Timestamp));
+    el.innerHTML=sorted.map(r=>{
+      const mine=r.fields.Author===currentUser;
+      const t=new Date(r.fields.Timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return `<div class="msg${mine?' mine':''}"><div class="msg-author">${r.fields.Author}</div><div class="msg-text">${r.fields.Message}</div><div class="msg-time">${t}</div></div>`;
+    }).join('');
+    el.scrollTop=el.scrollHeight;
+    const newCount=recs.length;
+    const drawer=document.getElementById('chat-drawer');
+    if(newCount>lastChatCount&&lastChatCount>0&&drawer.classList.contains('hidden')){
+      const badge=document.getElementById('chat-unread');
+      badge.textContent=newCount-lastChatCount;
+      badge.classList.remove('hidden');
+    }
+    lastChatCount=newCount;
+  }catch(e){el.innerHTML='<p class="no-msgs">Could not load chat.</p>';}
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  try{
+    await atPost('FamilyChat',{Author:currentUser,Message:txt,Timestamp:new Date().toISOString()});
+    loadChat();
+  }catch(e){alert('Could not send message. Check your Airtable setup.');}
+}
+
+function startChatPoll(){
+  if(AT_BASE_ID!=='CHANGE_ME'){chatPollTimer=setInterval(loadChat,10000);}
+}
+
+init();
+</script>
+</body>
+</html>
