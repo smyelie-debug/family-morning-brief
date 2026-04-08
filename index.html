@@ -373,9 +373,9 @@ async function loadCommentCounts(ids) {
 
 async function fetchSection(id, topic,  hint) {
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-beta':'web-search-2025-03-05'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
