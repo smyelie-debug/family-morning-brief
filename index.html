@@ -426,7 +426,11 @@ async function loadTab(name) {
       }
       return null;
     })(raw);
-    if (!result) throw new Error('No stories found');
+    if (!result) {
+      // Show first 200 chars of raw response in error for debugging
+      const preview = raw.slice(0,200).replace(/</g,'&lt;');
+      throw new Error('Parse failed. Raw: ' + preview);
+    }
     localStorage.setItem(cacheKey, JSON.stringify(result));
     secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus(`Loading…`,false); });
   } catch(e) {
