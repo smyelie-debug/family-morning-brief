@@ -265,7 +265,7 @@ const SECTIONS_DEF = {
   ]
 };
 
-const BIAS_PROMPT = `You are a rigorously non-partisan, factual morning news briefing assistant. Focus ONLY on news from the past 7 days — prioritize the most recent stories available. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories, most recent first.`;
+const BIAS_PROMPT = `You are a news briefing API. Respond ONLY with the requested JSON — no preamble, no explanation, no text before or after the JSON. You are a rigorously non-partisan, factual morning news briefing assistant. Focus ONLY on news from the past 7 days — prioritize the most recent stories available. Be balanced, neutral, fact-based. Represent both conservative and progressive perspectives fairly for political stories. Prefer AP, Reuters, BBC, NPR. Return ONLY a valid JSON array, no markdown. Format: [{"headline":"...","summary":"2-3 neutral factual sentences","source":"Publication Name"}]. Cover exactly 3 stories, most recent first.`;
 
 // ── AIRTABLE HELPERS ──
 const AT_URL = `https://family-brief-proxy.smyelie.workers.dev/airtable/v0/${AT_BASE_ID}`;
@@ -401,9 +401,25 @@ async function loadTab(name) {
     const block = (data.content||[]).find(b=>b.type==='text');
     if (!block) throw new Error('No content');
     const raw = block.text.replace(/```json|```/g,'').trim();
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No stories found');
-    const result = JSON.parse(jsonMatch[0]);
+    // Extract JSON using balanced brace counting (handles extra text around JSON)
+    const result = (function extractJSON(text) {
+      const start = text.indexOf('{');
+      if (start === -1) return null;
+      let depth = 0, inStr = false, esc = false;
+      for (let i = start; i < text.length; i++) {
+        const c = text[i];
+        if (esc) { esc = false; continue; }
+        if (c === '\\' && inStr) { esc = true; continue; }
+        if (c === '"') { inStr = !inStr; continue; }
+        if (inStr) continue;
+        if (c === '{') depth++;
+        if (c === '}' && --depth === 0) {
+          try { return JSON.parse(text.slice(start, i+1)); } catch(e) { return null; }
+        }
+      }
+      return null;
+    })(raw);
+    if (!result) throw new Error('No stories found');
     localStorage.setItem(cacheKey, JSON.stringify(result));
     secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus(`Loading…`,false); });
   } catch(e) {
