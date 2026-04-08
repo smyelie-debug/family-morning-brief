@@ -283,7 +283,12 @@ async function atPost(table, fields) {
     method: 'POST', headers: atHeaders(),
     body: JSON.stringify({records:[{fields}]})
   });
-  return r.json();
+  const data = await r.json();
+  if (!r.ok) {
+    const msg = data?.error?.message || data?.message || JSON.stringify(data);
+    throw new Error('Airtable ' + r.status + ': ' + msg);
+  }
+  return data;
 }
 
 // ── INIT / LOGIN ──
@@ -503,7 +508,7 @@ async function sendComment(){
   try {
     await atPost('Comments',{StoryId:currentStoryId,Author:currentUser,Comment:txt,Timestamp:new Date().toISOString()});
     loadComments();
-  } catch(e){alert('Could not post comment. Check your Airtable setup.');}
+  } catch(e){alert('Could not post comment.\n\n' + e.message);}
 }
 
 // ── FAMILY CHAT ──
@@ -560,7 +565,7 @@ async function sendChat(){
   try{
     await atPost('FamilyChat',{Author:currentUser,Message:txt,Timestamp:new Date().toISOString()});
     loadChat();
-  }catch(e){alert('Could not send message. Check your Airtable setup.');}
+  }catch(e){alert('Could not send message.\n\n' + e.message);}
 }
 
 function startChatPoll(){
