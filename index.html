@@ -13,7 +13,7 @@
 // ║   ADMIN SETUP — Edit these 4 values only     ║
 // ╚══════════════════════════════════════════════╝
 const INVITE_CODE    = "Finn2026";          // Family invite code (e.g. "Smyelie2025")
-const ANTHROPIC_KEY  = "patzegoYR6MCl2MYt.d937f79270ee6ae62bad95e5c8a34d846707fcc294685b6713334ce6ee43c07f";
+const ANTHROPIC_KEY  = "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";
 const AT_TOKEN       = "patZJO6hDHgRc7BNh.fc79f1910e85d1805c6d46273cea6c52b5b8b06b0233b13937255318b7c9ee22";
 const AT_BASE_ID     = "app9kbu6mSGReIf6Q";
 // ╔══════════════════════════════════════════════╗
@@ -22,7 +22,7 @@ const AT_BASE_ID     = "app9kbu6mSGReIf6Q";
 </script>
 </head>
 <body>
- 
+
 <!-- ═══════════ LOGIN SCREEN ═══════════ -->
 <div id="login-screen">
   <div class="login-card">
@@ -371,11 +371,11 @@ async function loadCommentCounts(ids) {
   } catch(e) { /* silent */ }
 }
 
-async function fetchSection(id, topic,  hint) {
+async function fetchSection(id, topic, hint) {
   try {
-    const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-beta':'web-search-2025-03-05'},
       body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1200,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:`Find 3 current news stories for: ${topic}. ${hint}`}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
