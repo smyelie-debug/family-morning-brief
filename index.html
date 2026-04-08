@@ -399,11 +399,12 @@ async function loadTab(name) {
     const resp = await fetch('https://family-brief-proxy.smyelie.workers.dev', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:6000,tools:[{type:'web_search_20250305',name:'web_search'}],system:BIAS_PROMPT,messages:[{role:'user',content:prompt}]})
     });
     if (!resp.ok) throw new Error(`API error ${resp.status}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error.message||'API error');
+    if (data.stop_reason === 'max_tokens') throw new Error('Response too long — try refreshing');
     // Combine all text blocks (web search may produce multiple)
     const allText = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
     if (!allText) throw new Error('No content');
@@ -426,11 +427,7 @@ async function loadTab(name) {
       }
       return null;
     })(raw);
-    if (!result) {
-      // Show first 200 chars of raw response in error for debugging
-      const preview = raw.slice(0,200).replace(/</g,'&lt;');
-      throw new Error('Parse failed. Raw: ' + preview);
-    }
+    if (!result) throw new Error('No stories found — try refreshing');
     localStorage.setItem(cacheKey, JSON.stringify(result));
     secs.forEach(([id])=>{ renderStories(id, result[id]||[]); done++; if(done>=pending) setStatus('Up to date',true); else setStatus(`Loading…`,false); });
   } catch(e) {
